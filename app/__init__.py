@@ -1,6 +1,6 @@
 from flask import Flask
 
-from app.config.config import Config
+from app.config.settings import Config
 from app.extensions import init_extensions
 from app.routes.admin_routes import admin_bp
 from app.routes.attendance_routes import attendance_bp
