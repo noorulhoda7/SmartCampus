@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Report - Smart Campus Attendance System using ML-Driven Face Recognition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Chart.js for attendance chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7fa;
+        }
+
+        header, footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        main {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h2, h3 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #0059b3;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        canvas {
+            display: block;
+            margin: auto;
+        }
+
+        .back-btn {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-btn button {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn button:hover {
+            background-color: #0059b3;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-chart-bar"></i> Attendance Report</h1>
+</header>
+
+<main>
+    {% if records %}
+        <table>
+            <tr>
+                <th><i class="fas fa-user"></i> Username</th>
+                <th><i class="fas fa-calendar-alt"></i> Date</th>
+                <th><i class="fas fa-clock"></i> Time</th>
+            </tr>
+            {% for row in records %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h3><i class="fas fa-chart-column"></i> Attendance Count Per Person</h3>
+        <canvas id="attendanceChart" width="600" height="300"></canvas>
+        <script>
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            const attendanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ labels | safe }},
+                    datasets: [{
+                        label: 'Attendance Count',
+                        data: {{ data | safe }},
+                        backgroundColor: 'rgba(0, 102, 204, 0.6)',
+                        borderColor: 'rgba(0, 102, 204, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'No. of Days Present'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Username'
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    {% else %}
+        <p style="text-align:center; font-size: 1.1rem;">No attendance records found.</p>
+    {% endif %}
+
+    <div class="back-btn">
+        <a href="/admin"><button><i class="fas fa-arrow-left"></i> Back to Dashboard</button></a>
+    </div>
+</main>
+
+<footer>
+    Smart Campus Attendance System using ML-Driven Face Recognition
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Attendance History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- TableExport for CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/tableexport@5.2.0/dist/js/tableexport.min.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f9fc;
+        }
+
+        header, footer {
+            background: #003366;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="date"], button {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #0059b3;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #0073e6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #0059b3;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        canvas {
+            margin-top: 40px;
+            display: block;
+            max-width: 100%;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        footer {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-calendar-check"></i> Your Attendance History</h1>
+</header>
+
+<main>
+    <!-- <div class="filters">
+        <label for="startDate"><strong>Start Date:</strong></label>
+        <input type="date" id="startDate" onchange="filterByDate()">
+        <label for="endDate"><strong>End Date:</strong></label>
+        <input type="date" id="endDate" onchange="filterByDate()">
+        <button onclick="exportTable()"><i class="fas fa-file-csv"></i> Export to CSV</button>
+    </div> -->
+
+    {% if records %}
+    <table id="attendanceTable">
+        <thead>
+            <tr>
+                <th><i class="fas fa-user"></i> Username</th>
+                <th><i class="fas fa-calendar-alt"></i> Date</th>
+                <th><i class="fas fa-clock"></i> Time</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceBody">
+            {% for row in records %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3><i class="fas fa-chart-bar"></i> Attendance Summary Chart</h3>
+    <canvas id="chartCanvas" height="180"></canvas>
+
+    <script>
+        const chartCtx = document.getElementById('chartCanvas').getContext('2d');
+        const labels = [...new Set(Array.from(document.querySelectorAll('#attendanceBody tr td:first-child')).map(td => td.textContent))];
+        const dataCounts = (() => {
+            const counts = {};
+            document.querySelectorAll('#attendanceBody tr').forEach(row => {
+                const name = row.children[0].textContent;
+                counts[name] = (counts[name] || 0) + 1;
+            });
+            return Object.values(counts);
+        })();
+
+        new Chart(chartCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Attendance',
+                    data: dataCounts,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Count' }
+                    },
+                    x: {
+                        title: { display: true, text: 'User' }
+                    }
+                }
+            }
+        });
+    </script>
+    {% else %}
+    <p style="text-align: center; font-size: 1.1rem;">No attendance records found.</p>
+    {% endif %}
+
+    <div class="btn-container">
+        <a href="/"><button><i class="fas fa-arrow-left"></i> Logout</button></a>
+    </div>
+</main>
+
+<footer>
+    Smart Campus Attendance System using ML-Driven Face Recognition
+</footer>
+
+<!-- <script>
+    function filterByDate() {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        const rows = document.querySelectorAll('#attendanceTable tbody tr');
+
+        rows.forEach(row => {
+            const date = row.children[1].textContent;
+            if ((start && date < start) || (end && date > end)) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+    }
+
+    function exportTable() {
+        const table = document.getElementById("attendanceTable");
+        const exportInstance = new TableExport(table, {
+            headers: true,
+            footers: false,
+            formats: ["csv"],
+            filename: "attendance_history",
+            bootstrap: false,
+            exportButtons: false,
+            trimWhitespace: true
+        });
+
+        const exportData = exportInstance.getExportData()['attendanceTable']['csv'];
+        exportInstance.export2file(exportData.data, exportData.mimeType, exportData.filename, exportData.fileExtension);
+    }
+</script> -->
+
+</body>
+</html>
