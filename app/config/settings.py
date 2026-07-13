@@ -53,3 +53,9 @@ class Config:
     FACE_CAPTURE_SAMPLES = env_int("FACE_CAPTURE_SAMPLES", 200)
     RECOGNITION_TIMEOUT_SECONDS = env_int("RECOGNITION_TIMEOUT_SECONDS", 30)
     MODEL_EPOCHS = env_int("MODEL_EPOCHS", 20)
+
+    LOG_DIR = env_path("LOG_DIR", BASE_DIR / "logs")
+    LOG_FILE = env_path("LOG_FILE", LOG_DIR / "app.log")
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+    LOG_MAX_BYTES = env_int("LOG_MAX_BYTES", 1048576)
+    LOG_BACKUP_COUNT = env_int("LOG_BACKUP_COUNT", 5)

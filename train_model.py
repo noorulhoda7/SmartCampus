@@ -9,6 +9,11 @@ from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import joblib
 
+from app.utils.logger import get_logger
+
+
+logger = get_logger(__name__)
+
 # Step 1: Capture face images from webcam
 def capture_images(user_id, username, save_path="static/faces", samples=100):
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -18,7 +23,7 @@ def capture_images(user_id, username, save_path="static/faces", samples=100):
 
     cap = cv2.VideoCapture(0)
     count = 0
-    print(f"[INFO] Capturing images for '{username}' (ID: {user_id})")
+    logger.info("Capturing images for '%s' (ID: %s)", username, user_id)
 
     while count < samples:
         ret, frame = cap.read()
@@ -46,7 +51,7 @@ def capture_images(user_id, username, save_path="static/faces", samples=100):
 
     cap.release()
     cv2.destroyAllWindows()
-    print(f"[INFO] Saved {count} face images in '{user_path}'")
+    logger.info("Saved %s face images in '%s'", count, user_path)
 
 # Step 2: Load dataset
 def load_data(data_dir='static/faces', img_size=100):
@@ -118,7 +123,7 @@ def train_cnn(X, y, label_dict, model_dir='model'):
     plt.savefig(os.path.join(model_dir, 'cnn_training_metrics.png'))
     plt.show()
 
-    print(f"[INFO] Training complete. Model and metrics saved in '{model_dir}/'")
+    logger.info("Training complete. Model and metrics saved in '%s/'", model_dir)
 
 # MAIN
 if __name__ == '__main__':
@@ -127,6 +132,6 @@ if __name__ == '__main__':
     capture_images(user_id, username)
     X, y, label_dict = load_data()
     if len(X) == 0:
-        print("[ERROR] No training data found!")
+        logger.error("No training data found.")
     else:
         train_cnn(X, y, label_dict)
