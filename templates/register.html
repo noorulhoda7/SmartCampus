@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Face - Smart Campus Attendance System using ML-Driven Face Recognition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+        }
+
+        header, footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        main {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        input[type="submit"], button {
+            background-color: #0059b3;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="submit"]:hover, button:hover {
+            background-color: #0073e6;
+        }
+
+        .back-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            main {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Smart Campus Attendance System using ML-Driven Face Recognition</h1>
+    </header>
+
+    <main>
+        <h2><i class="fas fa-user-plus"></i> Student and Faculty New User Registration</h2>
+
+        <form method="post" action="/register">
+            <label for="userid"><i class="fas fa-id-badge"></i> User ID:</label>
+            <input type="text" name="userid" id="userid" required>
+
+            <label for="username"><i class="fas fa-user"></i> Username:</label>
+            <input type="text" name="username" id="username" required>
+
+            <label for="password"><i class="fas fa-lock"></i> Password:</label>
+            <input type="password" name="password" id="password" required>
+
+            <label for="role"><i class="fas fa-user-tag"></i> Role:</label>
+            <select name="role" id="role" required>
+                <option value="">Select Role</option>
+                <option value="Student">Student</option>
+                <option value="Faculty">Faculty</option>
+            </select>
+
+            <input type="submit" value="Register and Capture Face">
+        </form>
+
+        <div class="back-btn">
+            <a href="/admin"><button><i class="fas fa-arrow-left"></i> Back to Dashboard</button></a>
+        </div>
+    </main>
+
+    <footer>
+        Smart Campus Attendance System using ML-Driven Face Recognition
+    </footer>
+
+</body>
+</html>
