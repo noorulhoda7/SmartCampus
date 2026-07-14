@@ -1,8 +1,8 @@
-"""create attendance schema
+"""initial schema baseline
 
-Revision ID: 77c8a3db7bed
+Revision ID: 253796db8cc5
 Revises: 
-Create Date: 2026-07-14 05:33:11.807940
+Create Date: 2026-07-14 06:12:56.766419
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '77c8a3db7bed'
+revision = '253796db8cc5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,6 +27,12 @@ def upgrade():
     )
     op.create_index(op.f('ix_attendance_date'), 'attendance', ['date'], unique=False)
     op.create_index(op.f('ix_attendance_username'), 'attendance', ['username'], unique=False)
+    op.create_table('roles',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_roles_name'), 'roles', ['name'], unique=True)
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.String(length=64), nullable=False),
@@ -61,6 +67,8 @@ def downgrade():
     op.drop_index(op.f('ix_users_username'), table_name='users')
     op.drop_index(op.f('ix_users_role'), table_name='users')
     op.drop_table('users')
+    op.drop_index(op.f('ix_roles_name'), table_name='roles')
+    op.drop_table('roles')
     op.drop_index(op.f('ix_attendance_username'), table_name='attendance')
     op.drop_index(op.f('ix_attendance_date'), table_name='attendance')
     op.drop_table('attendance')

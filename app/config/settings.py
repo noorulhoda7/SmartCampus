@@ -43,7 +43,6 @@ class Config:
     DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DATABASE_PATH}")
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    AUTO_CREATE_DATABASE = env_bool("AUTO_CREATE_DATABASE", True)
     ATTENDANCE_DIR = env_path("ATTENDANCE_DIR", BASE_DIR / "Attendance")
     DATABASE_DIR = env_path("DATABASE_DIR", BASE_DIR / "Database")
     USERS_FILE = env_path("USERS_FILE", DATABASE_DIR / "users.txt")
