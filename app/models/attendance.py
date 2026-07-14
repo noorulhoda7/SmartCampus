@@ -9,5 +9,5 @@ class Attendance(db.Model):
     date = db.Column(db.String(20), nullable=False, index=True)
     time = db.Column(db.String(20), nullable=False)
 
-    def to_csv_row(self):
+    def to_template_row(self):
         return [self.username, self.date, self.time]

@@ -12,4 +12,4 @@ class UserService:
         return user
 
     def list_users_for_template(self):
-        return [user.to_csv_row() for user in self.user_repository.all()]
+        return [user.to_template_row() for user in self.user_repository.all()]

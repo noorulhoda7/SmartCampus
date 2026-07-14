@@ -43,9 +43,6 @@ class Config:
     DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DATABASE_PATH}")
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    ATTENDANCE_DIR = env_path("ATTENDANCE_DIR", BASE_DIR / "Attendance")
-    DATABASE_DIR = env_path("DATABASE_DIR", BASE_DIR / "Database")
-    USERS_FILE = env_path("USERS_FILE", DATABASE_DIR / "users.txt")
     MODEL_DIR = env_path("MODEL_DIR", BASE_DIR / "model")
     MODEL_PATH = env_path("MODEL_PATH", MODEL_DIR / "cnn_face_model.h5")
     LABEL_PATH = env_path("LABEL_PATH", MODEL_DIR / "labels.pkl")

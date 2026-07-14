@@ -13,11 +13,5 @@ class User(db.Model):
     student = db.relationship("Student", back_populates="user", uselist=False, cascade="all, delete-orphan")
     faculty = db.relationship("Faculty", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
-    @classmethod
-    def from_csv_row(cls, row):
-        if len(row) != 4:
-            raise ValueError("User row must contain user_id, username, password and role.")
-        return cls(user_id=row[0], username=row[1], password=row[2], role=row[3])
-
-    def to_csv_row(self):
+    def to_template_row(self):
         return [self.user_id, self.username, self.password, self.role]
