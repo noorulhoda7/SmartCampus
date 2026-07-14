@@ -1,26 +1,30 @@
 from app.extensions import db
-from app.models.faculty import Faculty
 from app.models.role import Role
-from app.models.student import Student
-from app.models.user import User
+from app.repositories.faculty_repository import FacultyRepository
+from app.repositories.student_repository import StudentRepository
+from app.repositories.user_repository import UserRepository
 
 
 DEFAULT_ROLES = ("admin", "Student", "Faculty")
 
 
 def seed_database():
+    user_repository = UserRepository()
+    student_repository = StudentRepository()
+    faculty_repository = FacultyRepository()
+
     for role_name in DEFAULT_ROLES:
         if Role.query.filter_by(name=role_name).first() is None:
             db.session.add(Role(name=role_name))
-
-    admin = _get_or_create_user("admin", "admin", "admin", "admin")
-    sample_student = _get_or_create_user("sample-student", "sample_student", "student123", "Student")
-    sample_faculty = _get_or_create_user("sample-faculty", "sample_faculty", "faculty123", "Faculty")
-
-    _ensure_student(sample_student)
-    _ensure_faculty(sample_faculty)
-
     db.session.commit()
+
+    admin = _get_or_create_user(user_repository, "admin", "admin", "admin", "admin")
+    sample_student = _get_or_create_user(user_repository, "sample-student", "sample_student", "student123", "Student")
+    sample_faculty = _get_or_create_user(user_repository, "sample-faculty", "sample_faculty", "faculty123", "Faculty")
+
+    student_repository.ensure_for_user(sample_student)
+    faculty_repository.ensure_for_user(sample_faculty)
+
     return {
         "roles": len(DEFAULT_ROLES),
         "admin": admin.username,
@@ -29,20 +33,8 @@ def seed_database():
     }
 
 
-def _get_or_create_user(user_id, username, password, role):
-    user = User.query.filter_by(username=username).first()
+def _get_or_create_user(user_repository, user_id, username, password, role):
+    user = user_repository.find_by_username(username)
     if user is None:
-        user = User(user_id=user_id, username=username, password=password, role=role)
-        db.session.add(user)
-        db.session.flush()
+        user = user_repository.create(user_id, username, password, role)
     return user
-
-
-def _ensure_student(user):
-    if user.student is None:
-        db.session.add(Student(user=user))
-
-
-def _ensure_faculty(user):
-    if user.faculty is None:
-        db.session.add(Faculty(user=user))
