@@ -3,9 +3,9 @@ from app.models.user import User
 
 
 class UserRepository:
-    def create(self, user_id, username, password, role):
+    def create(self, user_id, username, password, role, commit=True):
         user = User(user_id=user_id, username=username, password=password, role=role)
-        return self.add(user)
+        return self.add(user, commit=commit)
 
     def all(self):
         return User.query.order_by(User.id.asc()).all()
@@ -13,9 +13,12 @@ class UserRepository:
     def template_rows(self):
         return [user.to_template_row() for user in self.all()]
 
-    def add(self, user):
+    def add(self, user, commit=True):
         db.session.add(user)
-        db.session.commit()
+        if commit:
+            db.session.commit()
+        else:
+            db.session.flush()
         return user
 
     def find_by_username(self, username):

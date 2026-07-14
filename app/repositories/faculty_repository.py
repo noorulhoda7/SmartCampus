@@ -6,10 +6,11 @@ class FacultyRepository:
     def find_by_user(self, user):
         return Faculty.query.filter_by(user=user).first()
 
-    def ensure_for_user(self, user):
+    def ensure_for_user(self, user, commit=True):
         faculty = self.find_by_user(user)
         if faculty is None:
             faculty = Faculty(user=user)
             db.session.add(faculty)
-            db.session.commit()
+            if commit:
+                db.session.commit()
         return faculty
