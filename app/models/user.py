@@ -1,12 +1,17 @@
-from dataclasses import dataclass
+from app.extensions import db
 
 
-@dataclass(frozen=True)
-class User:
-    user_id: str
-    username: str
-    password: str
-    role: str
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(64), nullable=False)
+    username = db.Column(db.String(120), nullable=False, index=True)
+    password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(50), nullable=False, index=True)
+
+    student = db.relationship("Student", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    faculty = db.relationship("Faculty", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
     @classmethod
     def from_csv_row(cls, row):

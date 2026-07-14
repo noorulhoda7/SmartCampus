@@ -2,6 +2,9 @@ import csv
 
 from flask import current_app
 
+from app.extensions import db
+from app.models.faculty import Faculty
+from app.models.student import Student
 from app.models.user import User
 
 
@@ -14,27 +17,38 @@ class UserRepository:
         return self.users_file or current_app.config["USERS_FILE"]
 
     def all(self):
-        users = []
-        if not self.path.exists():
-            return users
+        self.import_legacy_users_if_empty()
+        return User.query.order_by(User.id.asc()).all()
+
+    def add(self, user):
+        db.session.add(user)
+        db.session.flush()
+        self._ensure_role_profile(user)
+        db.session.commit()
+        return user
+
+    def find_by_credentials(self, username, password):
+        self.import_legacy_users_if_empty()
+        return User.query.filter_by(username=username, password=password).first()
+
+    def import_legacy_users_if_empty(self):
+        if User.query.first() is not None or not self.path.exists():
+            return
 
         with self.path.open(newline="") as file:
             reader = csv.reader(file)
             for row in reader:
                 try:
-                    users.append(User.from_csv_row(row))
+                    user = User.from_csv_row(row)
                 except ValueError:
                     continue
-        return users
+                db.session.add(user)
+                db.session.flush()
+                self._ensure_role_profile(user)
+        db.session.commit()
 
-    def add(self, user):
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(user.to_csv_row())
-
-    def find_by_credentials(self, username, password):
-        for user in self.all():
-            if user.username == username and user.password == password:
-                return user
-        return None
+    def _ensure_role_profile(self, user):
+        if user.role == "Student" and not user.student:
+            db.session.add(Student(user=user))
+        elif user.role == "Faculty" and not user.faculty:
+            db.session.add(Faculty(user=user))

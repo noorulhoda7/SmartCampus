@@ -2,6 +2,9 @@ import csv
 
 from flask import current_app
 
+from app.extensions import db
+from app.models.attendance import Attendance
+
 
 class AttendanceRepository:
     def __init__(self, attendance_dir=None):
@@ -15,30 +18,42 @@ class AttendanceRepository:
         return self.directory / f"Attendance-{date}.csv"
 
     def add(self, username, date, time):
-        self.directory.mkdir(parents=True, exist_ok=True)
-        file_path = self.file_for_date(date)
-        is_new = not file_path.exists()
-
-        with file_path.open("a", newline="") as file:
-            writer = csv.writer(file)
-            if is_new:
-                writer.writerow(["Username", "Date", "Time"])
-            writer.writerow([username, date, time])
+        self.import_legacy_attendance_if_empty()
+        record = Attendance(username=username, date=date, time=time)
+        db.session.add(record)
+        db.session.commit()
+        return record
 
     def records_for_user(self, username):
-        if not self.directory.exists():
-            return []
-
-        records = []
-        for file_path in self.directory.glob("*.csv"):
-            records.extend(row for row in self._read_records(file_path) if row and row[0] == username)
-        return sorted(records, key=lambda row: row[1], reverse=True)
+        self.import_legacy_attendance_if_empty()
+        records = (
+            Attendance.query
+            .filter_by(username=username)
+            .order_by(Attendance.date.desc(), Attendance.time.desc(), Attendance.id.desc())
+            .all()
+        )
+        return [record.to_csv_row() for record in records]
 
     def records_for_date(self, date):
-        file_path = self.file_for_date(date)
-        if not file_path.exists():
-            return []
-        return self._read_records(file_path)
+        self.import_legacy_attendance_if_empty()
+        records = (
+            Attendance.query
+            .filter_by(date=date)
+            .order_by(Attendance.id.asc())
+            .all()
+        )
+        return [record.to_csv_row() for record in records]
+
+    def import_legacy_attendance_if_empty(self):
+        if Attendance.query.first() is not None or not self.directory.exists():
+            return
+
+        for file_path in self.directory.glob("*.csv"):
+            for row in self._read_records(file_path):
+                if len(row) < 3:
+                    continue
+                db.session.add(Attendance(username=row[0], date=row[1], time=row[2]))
+        db.session.commit()
 
     def _read_records(self, file_path):
         with file_path.open(newline="") as file:
